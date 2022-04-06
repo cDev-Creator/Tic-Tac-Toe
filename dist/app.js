@@ -13,6 +13,7 @@ const playerTurn = (function(){
 
     const player1Choices = [];
     const player2Choices = [];
+    let winner;
 
     gameText.textContent = 'Place anywhere to start!';
     cell.forEach(item => {
@@ -20,24 +21,19 @@ const playerTurn = (function(){
             if(player1.turn == true && e.target.textContent == '' ) {
                 e.target.textContent = player1.symbol;
                 player1Choices.push(e.target.id)
-               
-             /*    if(player1Choices.includes('0') && player1Choices.includes('1') 
-                && player1Choices.includes('2')) {
-                    gameText.textContent = `${player1.name} wins`;
-                    console.log(`${player1.name} IS THE WINNER`)
-                }  */
 
                 console.log(player1Choices);
-                rat();
+                test();
 
-                function rat() {
-                    const containsA = winningCombos.some(e => JSON.stringify(e) == JSON.stringify(player1Choices))
-                    console.log(containsA);
-
-                    for (let i = 0; i < winningCombos.length; i++) {
-                        /* if(player1Choices.includes(winningCombos[i])) { */
-                        console.log(winningCombos[i]);
-                    }
+                function test() {
+                    for(let i = 0; i < winningCombos.length; i++) {
+                        let checker = (arr, target) => target.every(v => arr.includes(v));
+                        if(checker(player1Choices, winningCombos[i])){
+                            console.log("True") 
+                            winner = player1.name;
+                            endGame(winner)
+                        }
+                    }   
                 }
                
                 gameText.textContent = `${player2.name}'s turn`;
@@ -49,6 +45,24 @@ const playerTurn = (function(){
             else if(player2.turn == true && e.target.textContent == '') {
                 e.target.textContent = player2.symbol;
                 player2Choices.push(e.target.id)
+
+                test();
+                
+                function test() {
+                    // checking if every item in the target is included in the arr
+                    // looping through the length of the winningCombos array and checking every nested 
+                    // array against the target array (player1Choices)
+                    // it will tell when there is a matching array
+
+                    for(let i = 0; i < winningCombos.length; i++) {
+                        let checker = (arr, target) => target.every(v => arr.includes(v));
+                        if(checker(player2Choices, winningCombos[i])){
+                            console.log("True") 
+                            winner = player2.name;
+                            endGame(winner);
+                        }
+                    }   
+                }
 
                 gameText.textContent = `${player1.name}'s turn`;
                 player1.turn = true;
@@ -67,6 +81,12 @@ const playerTurn = (function(){
     });
 })();
 
+
+function endGame(winner) {
+    console.log(`${winner} won the game`);
+
+
+}
 const winningCombos = [
     ['0', '1' ,'2'],
     ['0', '3' ,'6'],
