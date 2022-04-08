@@ -2,8 +2,8 @@ const player = (name, symbol, turn) => {
     return { name, symbol, turn };
 };
 
-const player1 = player("nat", "X", true);
-const player2 = player("theo", "O", false);
+const player1 = player("mushroom", "i ", true);
+const player2 = player("moon", "i ", false);
 let isWon = false;
 
 const game = (function(){
@@ -24,20 +24,23 @@ const game = (function(){
 
     const player1Choices = [];
     const player2Choices = [];
-    const gameText = document.querySelector('.game-text')
-    const cell = document.querySelectorAll('.cell')
+    const gameText = document.querySelector('.game-text');
+    const cell = document.querySelectorAll('.cell');
+    const clearBtn = document.getElementById('clear');
     gameText.textContent = 'Place anywhere to start!';
 
     cell.forEach(item => {
-
         item.addEventListener('click', e => {
             const xscoreDisplay = document.getElementById('xscore');
             const oscoreDisplay = document.getElementById('oscore');
 
+            
             if(player1.turn == true && e.target.textContent == '' && !isWon) {
                 e.target.textContent = player1.symbol;
                 player1Choices.push(e.target.id)
-                /* console.log(player1Choices); */
+                item.classList.add('player1');
+                item.style.backgroundColor = "#db98c1"
+
                 gameText.textContent = `${player2.name}'s turn`;
                 player1.turn = false;
                 player2.turn = true;
@@ -46,10 +49,29 @@ const game = (function(){
 
                 if(isWon) {
                     xscore++;
-                    tournamnetWinner(xscore, xscoreDisplay, player1.name)
+                    tournamnetWinner(xscore, xscoreDisplay, player1.name);
                 } 
             }
+
+            else if(player2.turn == true && e.target.textContent == '' && !isWon) {
             
+                e.target.textContent = player2.symbol;
+                player2Choices.push(e.target.id)
+                item.classList.add('player2');
+                item.style.backgroundColor = "#fff8c5"
+
+                gameText.textContent = `${player1.name}'s turn`;
+                player1.turn = true;
+                player2.turn = false;
+                turns++;
+                gameWinner(player2Choices, player2.name);
+
+                if(isWon) {
+                    oscore++;
+                    tournamnetWinner(oscore, oscoreDisplay, player2.name);
+                }
+            }
+
             else if(player2.turn == true && e.target.textContent == '' && !isWon) {
             
                 e.target.textContent = player2.symbol;
@@ -62,29 +84,51 @@ const game = (function(){
 
                 if(isWon) {
                     oscore++;
-                    tournamnetWinner(oscore, oscoreDisplay, player2.name)
+                    tournamnetWinner(oscore, oscoreDisplay, player2.name);
                 }
             }
-            
+
+            console.log(turns)
             if (turns === 9 && !isWon) {
                 gameText.textContent = 'Its a draw!';
+                clearBtn.style.display = 'flex';
+                clearBoardBtn();
             }
 
             function tournamnetWinner(score, display, name) {
-                console.log(score)
-                display.textContent = score;
+                display.textContent = `: ${score}`;
                 if (score >= 3) {
-                    gameText.textContent = `${name} wins the tournamnet!`; 
-                    setTimeout(scoreReset, 1000);
+                    gameText.textContent = `${name} won the game!`; 
+                    setTimeout(scoreReset, 2000);
+                    setTimeout(clearBoard, 2000);
+                    clearBtn.style.display = 'none';
                 }
-                
             }
 
             function scoreReset() {
                 xscore = 0;
                 oscore = 0;
-                xscoreDisplay.textContent = xscore;
-                oscoreDisplay.textContent = oscore;
+                xscoreDisplay.textContent = `: ${xscore}`;
+                oscoreDisplay.textContent =  `: ${oscore}`;
+            }
+
+            function clearBoard() {
+                cell.forEach(item => {
+                    isWon = false;
+                    item.textContent = '';
+                    item.classList.remove('player1');
+                    item.classList.remove('player2');
+                    item.style.backgroundColor = "rgb(215, 236, 255)"
+                    player1Choices.splice(0,player1Choices.length)
+                    player2Choices.splice(0,player2Choices.length)
+                })
+            }
+
+            function clearBoardBtn() {
+                clearBtn.addEventListener('click', e => {
+                    clearBoard();
+                    clearBtn.style.display = 'none';
+                })
             }
 
             // checking if every item in the target is included in the arr
@@ -92,29 +136,15 @@ const game = (function(){
             // array against the target array (player1Choices)
             // it will tell when there is a matching array
             function gameWinner(player, winner) {  
-                const clearBtn = document.getElementById('clear');
-
                 for(let i = 0; i < winningCombos.length; i++) {
                     let checker = (arr, target) => target.every(v => arr.includes(v));
-
                     if(checker(player, winningCombos[i])){
                         isWon = true;
-                        gameText.textContent =`${winner} won the round`;
-                        clearBtn.addEventListener('click', e => {
-                         
-                            cell.forEach(item => {
-                                isWon = false;
-                                item.textContent = '';
-                                player1Choices.splice(0,player1Choices.length)
-                                player2Choices.splice(0,player2Choices.length)
-                            })
-                        })
-                        
                         clearBtn.style.display = 'flex';
+                        gameText.textContent =`${winner} won the round!`;
+                        clearBoardBtn();
                     }
-
-                }
-                  
+                }    
             } 
         });
     });
